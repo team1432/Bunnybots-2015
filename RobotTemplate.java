@@ -35,6 +35,8 @@ public class RobotTemplate extends SimpleRobot {
             Timer.delay(2.0);*/
             boolean buttonvalue = joystick.getRawButton(1);
             System.out.print(buttonvalue);
+            double value;
+            value=joystick.getRawAxis(2);
             /*doublesolenoid.set(DoubleSolenoid.Value.kOff);
             Timer.delay(2.0);
             doublesolenoid.set(DoubleSolenoid.Value.kForward);
