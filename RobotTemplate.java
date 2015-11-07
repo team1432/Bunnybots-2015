@@ -32,7 +32,6 @@ public class RobotTemplate extends SimpleRobot {
     Victor launchwheels = new Victor(1);
 
     //this runs once
-
     public void autonomous() {
 
 	/*launcher.set(DoubleSolenoid.Value.kOff);
@@ -104,24 +103,28 @@ public class RobotTemplate extends SimpleRobot {
     /**
      * This function is called once each time the robot enters operator control.
      */
+    public void teleoptInit(){
+	System.out.println("teleop started");
+    }
     public void operatorControl() {
 	compressor.start();
 	System.out.println("started compressor");
 	//Define button
 	boolean a = controller.getRawButton(1);
 	boolean b = controller.getRawButton(2);
-	
+
 	//Set launcher to reverse
 	launcher.set(DoubleSolenoid.Value.kReverse);
 	System.out.println("Ready to launch");
 	while (isOperatorControl() && isEnabled()) {
+	    Timer.delay(.2);
 	    //Wait for buttonpress
 	    a = controller.getRawButton(1);
 	    b = controller.getRawButton(2);
 	    while (!a && !b) {
+		Timer.delay(.1);
 		a = controller.getRawButton(1);
 		b = controller.getRawButton(2);
-		Timer.delay(.1);
 	    }
 	    if (a) {
 		System.out.println("A pressed");
@@ -138,17 +141,18 @@ public class RobotTemplate extends SimpleRobot {
 	    }
 	    if (b) {
 		System.out.println("B pressed");
-		if(DoubleSolenoid.Value.kForward==launcher.get()){
-		    launcher.set(DoubleSolenoid.Value.kReverse);
-		}
-		if(DoubleSolenoid.Value.kReverse==launcher.get()){
+		if (launcher.get() == DoubleSolenoid.Value.kReverse) {
 		    launcher.set(DoubleSolenoid.Value.kForward);
+		    System.out.println("forward");
+		} else {
+		    //Timer.delay(.1);
+		    launcher.set(DoubleSolenoid.Value.kReverse);
+		    System.out.println("reverse");
 		}
 	    }
 
 	}
     }
-
     /**
      * This function is called once each time the robot enters test mode.
      */
