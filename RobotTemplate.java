@@ -6,13 +6,10 @@
 /*----------------------------------------------------------------------------*/
 package edu.wpi.first.wpilibj.templates;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SimpleRobot;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -26,8 +23,6 @@ import edu.wpi.first.wpilibj.Victor;
  * directory.
  */
 public class RobotTemplate extends SimpleRobot {
-
-    //This function is called once each time the robot enters autonomous mode.
     Joystick controller = new Joystick(1);
     DoubleSolenoid launcher = new DoubleSolenoid(2, 1);
     Compressor compressor = new Compressor(1, 1);
@@ -35,7 +30,14 @@ public class RobotTemplate extends SimpleRobot {
     Jaguar leftwheel, rightwheel, centerwheel;
     RobotDrive drive;
     //this runs once
+
+    /**
+     *this runs every time robot enters autonomous
+     */
     public void autonomous() {
+	while (isEnabled() && isAutonomous()){
+	    drive.arcadeDrive(.5,0);
+	}
     }
 
     /**
@@ -49,13 +51,17 @@ public class RobotTemplate extends SimpleRobot {
     public void disabled() {
 	System.out.println("Robot Disabled");
     }
+    class startdrive extends Thread {
+         startdrive() {
+         }
 
+         public void run() {
+	    while (isOperatorControl && isEnabled()){
+	    drive.arcadeDrive(controller);         }
+    }
+    }
     public void operatorControl() {
 	System.out.println("Robot Enabled");
-	while (true){
-	    drive.arcadeDrive(controller);
-	}
-	/*Timer.delay(0.2);
 	compressor.start();
 	System.out.println("started compressor");
 	//Define button
@@ -64,15 +70,10 @@ public class RobotTemplate extends SimpleRobot {
 	//Set launcher to reverse
 	launcherreverse();
 	System.out.println("Ready to launch");
-	while (isOperatorControl() && isEnabled()) {
-	    //Wait for buttonpress
+	while (isOperatorControl() && isEnabled()){
 	    a = controller.getRawButton(1);
 	    b = controller.getRawButton(2);
-	    while (!a && !b) {
-		Timer.delay(.1);
-		a = controller.getRawButton(1);
-		b = controller.getRawButton(2);
-	    }
+	    Timer.delay(.01);
 	    if (a) {
 		System.out.println("A pressed");
 		autolaunch(1);
@@ -89,6 +90,14 @@ public class RobotTemplate extends SimpleRobot {
 		    launcherreverse();
 		}
 	    }
+	}
+	/*
+	while (isOperatorControl() && isEnabled()) {
+	    //Wait for buttonpress
+	    a = controller.getRawButton(1);
+	    b = controller.getRawButton(2);
+	    
+	    
 
 	}*/
     }
