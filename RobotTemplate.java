@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.Victor;
 public class RobotTemplate extends SimpleRobot {
     Joystick controller = new Joystick(1);
     DoubleSolenoid launcher = new DoubleSolenoid(2, 1);
-    Compressor compressor = new Compressor(1, 1);
+    //Compressor compressor = new Compressor(1, 1);
     Victor launchwheels = new Victor(1);
     Jaguar leftwheel, rightwheel, centerwheel;
     RobotDrive drive;
@@ -36,10 +36,50 @@ public class RobotTemplate extends SimpleRobot {
      */
     public void autonomous() {
 	while (isEnabled() && isAutonomous()){
+	    drive(3);
 	    drive.arcadeDrive(.5,0);
 	}
     }
-
+    /*
+    *1=forward
+    *2=right
+    *3=back
+    *4=left
+    */
+    public void drive(int direction){
+	updateir();
+	while (!back && !line){
+	    if (direction == 1){
+		drive.arcadeDrive(.5,0);
+	    }
+	    if (direction == 3){
+		drive.arcadeDrive(-.5,0);
+	    }
+	    if (direction == 2){
+		drive.arcadeDrive(0,0);
+		centerwheel.set(.5);
+	    }
+	    if (direction == 4){
+		drive.arcadeDrive(0,0);
+		centerwheel.set(-.5);
+	    }
+	}
+	if (line){
+	    int count;
+	    while (count < 1000){
+		drive.arcadeDrive(-.5);
+	    }
+	}
+    }
+    /*
+    *
+    */
+    public void updateir(){
+	/*check left
+	check right
+	check back
+	check line*/
+    }
     /**
      * This function is called once each time the robot enters operator control.
      */
@@ -51,26 +91,21 @@ public class RobotTemplate extends SimpleRobot {
     public void disabled() {
 	System.out.println("Robot Disabled");
     }
-    class startdrive extends Thread {
-         startdrive() {
-         }
-
-         public void run() {
-	    while (isOperatorControl && isEnabled()){
-	    drive.arcadeDrive(controller);         }
-    }
-    }
     public void operatorControl() {
 	System.out.println("Robot Enabled");
-	compressor.start();
+//	compressor.start();
 	System.out.println("started compressor");
 	//Define button
 	boolean a = controller.getRawButton(1);
 	boolean b = controller.getRawButton(2);
+	double strife = controller.getRawAxis(2);
 	//Set launcher to reverse
 	launcherreverse();
 	System.out.println("Ready to launch");
 	while (isOperatorControl() && isEnabled()){
+	    drive.arcadeDrive(controller, 1, controller, 4);
+	    strife = controller.getRawAxis(2);
+	    centerwheel.set(strife);
 	    a = controller.getRawButton(1);
 	    b = controller.getRawButton(2);
 	    Timer.delay(.01);
