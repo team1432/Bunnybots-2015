@@ -10,10 +10,11 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.DigitalInput;
+import java.util.Random;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,63 +24,84 @@ import edu.wpi.first.wpilibj.Victor;
  * directory.
  */
 public class RobotTemplate extends SimpleRobot {
+
     Joystick controller = new Joystick(1);
     DoubleSolenoid launcher = new DoubleSolenoid(2, 1);
     //Compressor compressor = new Compressor(1, 1);
     Victor launchwheels = new Victor(1);
     Jaguar leftwheel, rightwheel, centerwheel;
     RobotDrive drive;
-    //this runs once
+    DigitalInput left = new DigitalInput(2);
+    DigitalInput right = new DigitalInput(3);
+    DigitalInput back = new DigitalInput(4);
+    DigitalInput line = new DigitalInput(5);
 
     /**
-     *this runs every time robot enters autonomous
+     * this runs every time robot enters autonomous
      */
     public void autonomous() {
-	while (isEnabled() && isAutonomous()){
-	    drive(3);
-	    drive.arcadeDrive(.5,0);
+	while (isEnabled() && isAutonomous()) {
+	    centerwheel.set(0);
+	    drive();
 	}
     }
-    /*
-    *1=forward
-    *2=right
-    *3=back
-    *4=left
-    */
-    public void drive(int direction){
-	updateir();
-	while (!back && !line){
-	    if (direction == 1){
-		drive.arcadeDrive(.5,0);
+
+    /**
+     *
+     */
+    public void drive() {
+	if (!back.get() && !line.get()) {
+	    drive.arcadeDrive(-.5, 0);
+	} else if (back.get()) {
+	    if (left.get() || !right.get()) {
+		while (!back.get()) {
+		    //drive right
+		    centerwheel.set(.5);
+		    drive.arcadeDrive(0, 0);
+		}
+		Timer.delay(.5);
+		centerwheel.set(0);
 	    }
-	    if (direction == 3){
-		drive.arcadeDrive(-.5,0);
+	    if (right.get() || !left.get()) {
+		while (!back.get()) {
+		    //drive right
+		    centerwheel.set(-.5);
+		    drive.arcadeDrive(0, 0);
+		}
+		Timer.delay(.5);
+		centerwheel.set(0);
 	    }
-	    if (direction == 2){
-		drive.arcadeDrive(0,0);
-		centerwheel.set(.5);
+	    if (!right.get() && !left.get()) {
+		Random random = new Random();
+		int n = random.nextInt(1);
+		if (n == 1) {
+		    while (!back.get()) {
+			centerwheel.set(-.5);
+			drive.arcadeDrive(0, 0);
+		    }
+		    
+		}
+		else{
+		    while (!back.get()) {
+			centerwheel.set(.5);
+			drive.arcadeDrive(0, 0);
+		    }
+		}
+		Timer.delay(.5);
+		centerwheel.set(0);
 	    }
-	    if (direction == 4){
-		drive.arcadeDrive(0,0);
-		centerwheel.set(-.5);
+	} else if (line.get() && !back.get()) {
+	    long millis = System.currentTimeMillis() % 1000;
+	    while (System.currentTimeMillis()% 1000 - millis < 500 && !back.get()){
+		drive.arcadeDrive(-.5, 0);
 	    }
-	}
-	if (line){
-	    int count;
-	    while (count < 1000){
-		drive.arcadeDrive(-.5);
+	    millis = System.currentTimeMillis();
+	    while (System.currentTimeMillis() - millis < 5000){
+		drive.arcadeDrive(.5, 0);
 	    }
 	}
     }
-    /*
-    *
-    */
-    public void updateir(){
-	/*check left
-	check right
-	check back
-	check line*/
-    }
+
     /**
      * This function is called once each time the robot enters operator control.
      */
@@ -91,6 +113,7 @@ public class RobotTemplate extends SimpleRobot {
     public void disabled() {
 	System.out.println("Robot Disabled");
     }
+
     public void operatorControl() {
 	System.out.println("Robot Enabled");
 //	compressor.start();
@@ -98,17 +121,17 @@ public class RobotTemplate extends SimpleRobot {
 	//Define button
 	boolean a = controller.getRawButton(1);
 	boolean b = controller.getRawButton(2);
-	double strife = controller.getRawAxis(2);
+	double strife = controller.getRawAxis(1);
 	//Set launcher to reverse
 	launcherreverse();
 	System.out.println("Ready to launch");
-	while (isOperatorControl() && isEnabled()){
-	    drive.arcadeDrive(controller, 1, controller, 4);
-	    strife = controller.getRawAxis(2);
+	while (isOperatorControl() && isEnabled()) {
+	    drive.arcadeDrive(controller, 2, controller, 4);
+	    strife = -(controller.getRawAxis(1));
 	    centerwheel.set(strife);
 	    a = controller.getRawButton(1);
 	    b = controller.getRawButton(2);
-	    Timer.delay(.01);
+	    Timer.delay(.05);
 	    if (a) {
 		System.out.println("A pressed");
 		autolaunch(1);
@@ -127,14 +150,14 @@ public class RobotTemplate extends SimpleRobot {
 	    }
 	}
 	/*
-	while (isOperatorControl() && isEnabled()) {
-	    //Wait for buttonpress
-	    a = controller.getRawButton(1);
-	    b = controller.getRawButton(2);
+	 while (isOperatorControl() && isEnabled()) {
+	 //Wait for buttonpress
+	 a = controller.getRawButton(1);
+	 b = controller.getRawButton(2);
 	    
 	    
 
-	}*/
+	 }*/
     }
 
     /**
@@ -142,6 +165,13 @@ public class RobotTemplate extends SimpleRobot {
      */
     public void test() {
 
+    }
+
+    public void setupdrive() {
+	leftwheel = new Jaguar(3);
+	centerwheel = new Jaguar(4);
+	rightwheel = new Jaguar(5);
+	drive = new RobotDrive(leftwheel, rightwheel);
     }
 
     /*
@@ -159,9 +189,12 @@ public class RobotTemplate extends SimpleRobot {
 	launcher.set(DoubleSolenoid.Value.kReverse);
 	System.out.println("reverse");
     }
+
     /**
-     * autolaunch sends launcher forward, turns motors on, and then off, and reverse
-     * @param button is the integer of the button on the controller. 
+     * autolaunch sends launcher forward, turns motors on, and then off, and
+     * reverse
+     *
+     * @param button is the integer of the button on the controller.
      */
     public void autolaunch(int button) {
 	boolean a = controller.getRawButton(button);
@@ -176,11 +209,5 @@ public class RobotTemplate extends SimpleRobot {
 	launchwheels.set(0);
 	launcherreverse();
     }
-    public void setupdrive(){
-	leftwheel = new Jaguar(3);
-	centerwheel = new Jaguar(4);
-	rightwheel = new Jaguar(5);
-	drive = new RobotDrive(leftwheel, rightwheel);
-    }
-    
-}
+
+} 
