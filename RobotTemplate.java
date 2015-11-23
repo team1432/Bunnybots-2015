@@ -27,7 +27,7 @@ public class RobotTemplate extends SimpleRobot {
 
     Joystick controller = new Joystick(1);
     DoubleSolenoid launcher = new DoubleSolenoid(2, 1);
-    //Compressor compressor = new Compressor(1, 1);
+    Compressor compressor = new Compressor(1, 1);
     Victor launchwheels = new Victor(1);
     Jaguar leftwheel, rightwheel, centerwheel;
     RobotDrive drive;
@@ -41,28 +41,28 @@ public class RobotTemplate extends SimpleRobot {
      */
     public void autonomous() {
 	while (isEnabled() && isAutonomous()) {
-	    centerwheel.set(0);
-	    drive();
+	    autodrive();
 	}
     }
 
     /**
-     *
+     *This is constantly called in autonomous
      */
-    public void drive() {
+    public void autodrive() {
 	if (!back.get() && !line.get()) {
-	    drive.arcadeDrive(-.5, 0);
-	} else if (back.get()) {
-	    if (left.get() || !right.get()) {
-		while (!back.get()) {
-		    //drive right
-		    centerwheel.set(.5);
-		    drive.arcadeDrive(0, 0);
-		}
-		Timer.delay(.5);
 		centerwheel.set(0);
+		drive.arcadeDrive(-.5, 0);
+	} else if (back.get()) {
+		if (left.get() && !right.get()) {
+			//drive right
+			centerwheel.set(.5);
+			drive.arcadeDrive(0, 0);
+			if (!back.get()){
+				Timer.delay(.5);
+				centerwheel.set(0);
+			}
 	    }
-	    if (right.get() || !left.get()) {
+	    if (right.get() && !left.get()) {
 		while (!back.get()) {
 		    //drive right
 		    centerwheel.set(-.5);
@@ -109,25 +109,25 @@ public class RobotTemplate extends SimpleRobot {
 	System.out.println("Ready to start");
 	setupdrive();
     }
-
+ 
     public void disabled() {
 	System.out.println("Robot Disabled");
     }
-
+ 
     public void operatorControl() {
 	System.out.println("Robot Enabled");
-//	compressor.start();
+	compressor.start();
 	System.out.println("started compressor");
 	//Define button
 	boolean a = controller.getRawButton(1);
 	boolean b = controller.getRawButton(2);
-	double strife = controller.getRawAxis(1);
+	double strafe = controller.getRawAxis(1);
 	//Set launcher to reverse
 	launcherreverse();
 	System.out.println("Ready to launch");
 	while (isOperatorControl() && isEnabled()) {
 	    drive.arcadeDrive(controller, 2, controller, 4);
-	    strife = -(controller.getRawAxis(1));
+	    strafe = -(controller.getRawAxis(1));
 	    centerwheel.set(strife);
 	    a = controller.getRawButton(1);
 	    b = controller.getRawButton(2);
@@ -149,15 +149,6 @@ public class RobotTemplate extends SimpleRobot {
 		}
 	    }
 	}
-	/*
-	 while (isOperatorControl() && isEnabled()) {
-	 //Wait for buttonpress
-	 a = controller.getRawButton(1);
-	 b = controller.getRawButton(2);
-	    
-	    
-
-	 }*/
     }
 
     /**
