@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -46,60 +47,63 @@ public class RobotTemplate extends SimpleRobot {
     }
 
     /**
-     *This is constantly called in autonomous
+     * This is constantly called in autonomous
      */
     public void autodrive() {
-	if (!back.get() && !line.get()) {
-		centerwheel.set(0);
-		drive.arcadeDrive(-.5, 0);
-	} else if (back.get()) {
-		if (left.get() && !right.get()) {
-			//drive right
-			centerwheel.set(.5);
-			drive.arcadeDrive(0, 0);
-			if (!back.get()){
-				Timer.delay(.5);
-				centerwheel.set(0);
-			}
-	    }
-	    if (right.get() && !left.get()) {
-		while (!back.get()) {
-		    //drive right
-		    centerwheel.set(-.5);
-		    drive.arcadeDrive(0, 0);
-		}
-		Timer.delay(.5);
-		centerwheel.set(0);
-	    }
-	    if (!right.get() && !left.get()) {
-		Random random = new Random();
-		int n = random.nextInt(1);
-		if (n == 1) {
-		    while (!back.get()) {
-			centerwheel.set(-.5);
-			drive.arcadeDrive(0, 0);
-		    }
-		    
-		}
-		else{
-		    while (!back.get()) {
-			centerwheel.set(.5);
-			drive.arcadeDrive(0, 0);
-		    }
-		}
-		Timer.delay(.5);
-		centerwheel.set(0);
-	    }
-	} else if (line.get() && !back.get()) {
-	    long millis = System.currentTimeMillis() % 1000;
-	    while (System.currentTimeMillis()% 1000 - millis < 500 && !back.get()){
-		drive.arcadeDrive(-.5, 0);
-	    }
-	    millis = System.currentTimeMillis();
-	    while (System.currentTimeMillis() - millis < 5000){
-		drive.arcadeDrive(.5, 0);
-	    }
+	if (!back.get() /*&& !line.get()*/) {
+	    System.out.println("False");
+	    centerwheel.set(0);
+	    drive.arcadeDrive(.5, 0);
+	} else if(back.get()) {
+	    System.out.println("True");
 	}
+	/*else if (back.get()) {
+	 if (left.get() && !right.get()) {
+	 //drive right
+	 centerwheel.set(.5);
+	 drive.arcadeDrive(0, 0);
+	 if (!back.get()) {
+	 Timer.delay(.5);
+	 centerwheel.set(0);
+	 }
+	 }
+	 if (right.get() && !left.get()) {
+	 while (!back.get()) {
+	 //drive right
+	 centerwheel.set(-.5);
+	 drive.arcadeDrive(0, 0);
+	 }
+	 Timer.delay(.5);
+	 centerwheel.set(0);
+	 }
+	 if (!right.get() && !left.get()) {
+	 Random random = new Random();
+	 int n = random.nextInt(1);
+	 if (n == 1) {
+	 while (!back.get()) {
+	 centerwheel.set(-.5);
+	 drive.arcadeDrive(0, 0);
+	 }
+
+	 } else {
+	 while (!back.get()) {
+	 centerwheel.set(.5);
+	 drive.arcadeDrive(0, 0);
+	 }
+	 }
+	 Timer.delay(.5);
+	 centerwheel.set(0);
+	 }
+	 } else if (line.get() && !back.get()) {
+	 long millis = System.currentTimeMillis() % 1000;
+	 while (System.currentTimeMillis() % 1000 - millis < 500 && !back.get()) {
+	 drive.arcadeDrive(-.5, 0);
+	 }
+	 millis = System.currentTimeMillis();
+	 while (System.currentTimeMillis() - millis < 5000) {
+	 drive.arcadeDrive(.5, 0);
+	 }
+	 }*/
     }
 
     /**
@@ -109,11 +113,11 @@ public class RobotTemplate extends SimpleRobot {
 	System.out.println("Ready to start");
 	setupdrive();
     }
- 
+
     public void disabled() {
 	System.out.println("Robot Disabled");
     }
- 
+
     public void operatorControl() {
 	System.out.println("Robot Enabled");
 	compressor.start();
@@ -128,7 +132,7 @@ public class RobotTemplate extends SimpleRobot {
 	while (isOperatorControl() && isEnabled()) {
 	    drive.arcadeDrive(controller, 2, controller, 4);
 	    strafe = -(controller.getRawAxis(1));
-	    centerwheel.set(strife);
+	    centerwheel.set(strafe);
 	    a = controller.getRawButton(1);
 	    b = controller.getRawButton(2);
 	    Timer.delay(.05);
@@ -201,4 +205,4 @@ public class RobotTemplate extends SimpleRobot {
 	launcherreverse();
     }
 
-} 
+}
