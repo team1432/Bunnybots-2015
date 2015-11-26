@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 package edu.wpi.first.wpilibj.templates;
 
+import com.sun.squawk.VM;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SimpleRobot;
@@ -41,7 +42,13 @@ public class RobotTemplate extends SimpleRobot {
      * this runs every time robot enters autonomous
      */
     public void autonomous() {
-	while (isEnabled() && isAutonomous()) {
+	//long starttime = VM.getTimeMillis();
+	//while ((VM.getTimeMillis() - starttime) < 500){
+	  //  System.out.println("Waiting");
+	//}
+	//System.out.println("timer done" + VM.getTimeMillis());
+	
+	while (isEnabled() && isAutonomous()) { 
 	    autodrive();
 	}
     }
@@ -50,60 +57,36 @@ public class RobotTemplate extends SimpleRobot {
      * This is constantly called in autonomous
      */
     public void autodrive() {
-	if (!back.get() /*&& !line.get()*/) {
-	    System.out.println("False");
+	if (!back.get() && !line.get()) {
 	    centerwheel.set(0);
-	    drive.arcadeDrive(.5, 0);
-	} else if(back.get()) {
-	    System.out.println("True");
+	    leftwheel.set(-.5);
+	    rightwheel.set(-.5);
+	} else if (back.get()) {
+	    if (left.get() && !right.get()) {
+		//drive right
+		centerwheel.set(.5);
+		leftwheel.set(0);
+		rightwheel.set(0);
+	    }
+	    if (right.get() && !left.get()) {
+		//drive left
+		centerwheel.set(-.5);
+		leftwheel.set(0);
+		rightwheel.set(0);
+		}
+	    if (!right.get() && !left.get()) {
+		//drive left
+		centerwheel.set(-.5);
+		leftwheel.set(0);
+		rightwheel.set(0);
+	    }
+	} else if (line.get()) {
+	    centerwheel.set(0);
+	    //drive back
+	    leftwheel.set(.5);
+	    rightwheel.set(.5);
+	    
 	}
-	/*else if (back.get()) {
-	 if (left.get() && !right.get()) {
-	 //drive right
-	 centerwheel.set(.5);
-	 drive.arcadeDrive(0, 0);
-	 if (!back.get()) {
-	 Timer.delay(.5);
-	 centerwheel.set(0);
-	 }
-	 }
-	 if (right.get() && !left.get()) {
-	 while (!back.get()) {
-	 //drive right
-	 centerwheel.set(-.5);
-	 drive.arcadeDrive(0, 0);
-	 }
-	 Timer.delay(.5);
-	 centerwheel.set(0);
-	 }
-	 if (!right.get() && !left.get()) {
-	 Random random = new Random();
-	 int n = random.nextInt(1);
-	 if (n == 1) {
-	 while (!back.get()) {
-	 centerwheel.set(-.5);
-	 drive.arcadeDrive(0, 0);
-	 }
-
-	 } else {
-	 while (!back.get()) {
-	 centerwheel.set(.5);
-	 drive.arcadeDrive(0, 0);
-	 }
-	 }
-	 Timer.delay(.5);
-	 centerwheel.set(0);
-	 }
-	 } else if (line.get() && !back.get()) {
-	 long millis = System.currentTimeMillis() % 1000;
-	 while (System.currentTimeMillis() % 1000 - millis < 500 && !back.get()) {
-	 drive.arcadeDrive(-.5, 0);
-	 }
-	 millis = System.currentTimeMillis();
-	 while (System.currentTimeMillis() - millis < 5000) {
-	 drive.arcadeDrive(.5, 0);
-	 }
-	 }*/
     }
 
     /**
