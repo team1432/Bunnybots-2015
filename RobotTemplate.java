@@ -7,6 +7,7 @@
 package edu.wpi.first.wpilibj.templates;
 
 import com.sun.squawk.VM;
+import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SimpleRobot;
@@ -33,11 +34,15 @@ public class RobotTemplate extends SimpleRobot {
     Victor launchwheels = new Victor(1);
     Jaguar leftwheel, rightwheel, centerwheel;
     RobotDrive drive;
-    DigitalInput left = new DigitalInput(2);
-    DigitalInput right = new DigitalInput(3);
-    DigitalInput back = new DigitalInput(4);
-    DigitalInput line = new DigitalInput(5);
+    boolean left = false;
+    boolean right = false;
+    boolean back = false;
+    boolean line = false;
     boolean GotToLine = false;
+    AnalogChannel irLeft = new AnalogChannel(1);
+    AnalogChannel irRight = new AnalogChannel(2);
+    AnalogChannel irLine = new AnalogChannel(3);
+    AnalogChannel irBack = new AnalogChannel(4);
     long starttime;
     int state = 0;
     double DriveForwardValue;
@@ -47,20 +52,44 @@ public class RobotTemplate extends SimpleRobot {
     /**
      * this runs every time robot enters autonomous
      */
+    public void updateIR() {
+	if (45 > irRight.getValue() && irRight.getValue() > 299) {
+	    right = false;
+	} else {
+	    right = true;
+	}
+	if (45 > irLeft.getValue() && irLeft.getValue() > 299) {
+	    left = false;
+	} else {
+	    left = true;
+	}
+	if (45 > irBack.getValue() && irBack.getValue() > 299) {
+	    back = false;
+	} else {
+	    back = true;
+	}
+	if (45 > irLine.getValue() && irLine.getValue() > 299) {
+	    line = false;
+	} else {
+	    line = true;
+	}
+    }
+
     public void autonomous() {
-	if (!back.get()) {
+	if (!back) {
 	    state = 0;
 	}
 	while (isEnabled() && isAutonomous()) {
-	    if (back.get() && left.get() && !right.get() && !GotToLine && state != 5) {
+	    updateIR();
+	    if (!back && left && !right && !GotToLine && state != 5) {
 		state = 1;
-	    } else if (back.get() && right.get() && !left.get() && !GotToLine && state != 5) {
+	    } else if (back && right && !left && !GotToLine && state != 5) {
 		state = 2;
-	    } else if (back.get() && !right.get() && !left.get() && !GotToLine && state != 5) {
+	    } else if (back && !right && !left && !GotToLine && state != 5) {
 		state = 2;
-	    } else if (line.get() && !back.get() && state != 5) {
+	    } else if (line && !back && state != 5) {
 		state = 3;
-	    } else if ((back.get() && left.get() && right.get() && state != 5) || (back.get() && GotToLine && state != 5)) {
+	    } else if ((back && left && right && state != 5) || (back && GotToLine && state != 5)) {
 		state = 4;
 	    }
 	    autodrive();
@@ -75,7 +104,7 @@ public class RobotTemplate extends SimpleRobot {
     public void autodrive() {
 	if (state == 0) {
 	    System.out.println("State is now 0");
-	    if (!back.get()) {
+	    if (!back) {
 		//drive forward
 		centerwheel.set(0);
 		leftwheel.set(.5);
@@ -83,37 +112,39 @@ public class RobotTemplate extends SimpleRobot {
 	    }
 	} else if (state == 1) {
 	    System.out.println("State is now 1");
-	    if (back.get()) {
+	    if (back) {
 		//drive right
 		centerwheel.set(.5);
 		leftwheel.set(0);
 		rightwheel.set(0);
-	    } else if (!back.get()) {
+	    } else if (!back) {
 		starttime = VM.getTimeMillis();
 		while (VM.getTimeMillis() < (starttime + 1000)) {
 		    centerwheel.set(.5);
 		}
-		if (!back.get() && !GotToLine) {
+		updateIR();
+		if (!back && !GotToLine) {
 		    state = 0;
-		} else if (!back.get() && GotToLine) {
+		} else if (!back && GotToLine) {
 		    state = 3;
 		}
 	    }
 	} else if (state == 2) {
 	    System.out.println("State is now 2");
-	    if (back.get()) {
+	    if (back) {
 		//drive left
 		centerwheel.set(-.5);
 		leftwheel.set(0);
 		rightwheel.set(0);
-	    } else if (!back.get()) {
+	    } else if (!back) {
 		starttime = VM.getTimeMillis();
 		while (VM.getTimeMillis() < (starttime + 1000)) {
 		    centerwheel.set(-.5);
 		}
-		if (!back.get() && !GotToLine) {
+		updateIR();
+		if (!back && !GotToLine) {
 		    state = 0;
-		} else if (!back.get() && GotToLine) {
+		} else if (!back && GotToLine) {
 		    state = 3;
 		}
 	    }
@@ -133,15 +164,21 @@ public class RobotTemplate extends SimpleRobot {
 		leftwheel.set(-.5);
 		rightwheel.set(.5);
 	    }
+	    while ((VM.getTimeMillis() - starttime) < 1000) {
+		centerwheel.set(0);
+		leftwheel.set(-.5);
+		rightwheel.set(.5);
+	    }
 	    state = 5;
 	} else if (state == 4) {
 	    System.out.println("State is now 4");
 	    centerwheel.set(0);
 	    leftwheel.set(0);
 	    rightwheel.set(0);
-	    if (!back.get() && !GotToLine) {
+	    updateIR();
+	    if (!back && !GotToLine) {
 		state = 0;
-	    } else if (!back.get() && GotToLine) {
+	    } else if (!back && GotToLine) {
 		state = 3;
 	    }
 	} else if (state == 5) {
