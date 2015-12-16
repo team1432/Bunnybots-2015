@@ -48,7 +48,8 @@ public class RobotTemplate extends SimpleRobot {
     double DriveForwardValue;
     double DriveRotateValue;
     double DriveSideValue;
-
+    Victor scooper;
+	DoubleSolenoid angle = new DoubleSolenoid(3, 4);
     /**
      * this runs every time robot enters autonomous
      */
@@ -202,40 +203,56 @@ public class RobotTemplate extends SimpleRobot {
     }
 
     public void operatorControl() {
-	System.out.println("Robot Enabled");
-	compressor.start();
-	System.out.println("started compressor");
-	//Define button
-	boolean a = controller.getRawButton(1);
-	boolean b = controller.getRawButton(2);
-	driving();
-	//Set launcher to reverse
-	launcherreverse();
-	System.out.println("Ready to launch");
-	while (isOperatorControl() && isEnabled()) {
-	    driving();
-	    a = controller.getRawButton(1);
-	    b = controller.getRawButton(2);
-	    Timer.delay(.05);
-	    if (a) {
-		System.out.println("A pressed");
-		autolaunch(1);
-	    }
-	    if (b) {
-		while (b) {
-		    Timer.delay(.01);
-		    b = controller.getRawButton(2);
-		    driving();
+		System.out.println("Robot Enabled");
+		compressor.start();
+		System.out.println("started compressor");
+		//Define button
+		boolean a = controller.getRawButton(1);
+		boolean b = controller.getRawButton(2);
+		driving();
+		//Set launcher to reverse
+		launcherreverse();
+		angledown();
+		System.out.println("Ready to launch");
+		while (isOperatorControl() && isEnabled()) {
+			driving();
+			a = controller.getRawButton(1);
+			b = controller.getRawButton(2);
+			x = controller.getRawButton(3);
+			y = controller.getRawButton(4);
+			Timer.delay(.05);
+			if (a) {
+				System.out.println("A pressed");
+				autolaunch(1);
+			}
+			if (x) {
+				System.out.println("X pressed");
+				if (angle.get() == DoubleSolenoid.Value.kReverse) {
+					angleup();
+				} else {
+					angledown();
+				}
+				}
+			}
+			if (y) {
+				System.out.println("Y pressed");
+				scoop();
+			}
+			if (b) {
+				while (b) {
+					Timer.delay(.01);
+					b = controller.getRawButton(2);
+					driving();
+				}
+				System.out.println("B pressed");
+				if (launcher.get() == DoubleSolenoid.Value.kReverse) {
+					launcherforward();
+				} else {
+					launcherreverse();
+				}
+			}
 		}
-		System.out.println("B pressed");
-		if (launcher.get() == DoubleSolenoid.Value.kReverse) {
-		    launcherforward();
-		} else {
-		    launcherreverse();
-		}
-	    }
 	}
-    }
 
     /**
      * This function is called once each time the robot enters test mode.
@@ -245,26 +262,26 @@ public class RobotTemplate extends SimpleRobot {
     }
 
     public void driving() {
-	DriveForwardValue = controller.getRawAxis(2);
-	DriveRotateValue = controller.getRawAxis(4);
-	DriveSideValue = -(controller.getRawAxis(1));
-	drive.arcadeDrive(DriveForwardValue, DriveRotateValue, true);
-	centerwheel.set(DriveSideValue);
+		DriveForwardValue = controller.getRawAxis(2);
+		DriveRotateValue = controller.getRawAxis(4);
+		DriveSideValue = -(controller.getRawAxis(1));
+		drive.arcadeDrive(DriveForwardValue, DriveRotateValue, true);
+		centerwheel.set(DriveSideValue);
     }
-
-    public void setupdrive() {
-	leftwheel = new Jaguar(3);
-	centerwheel = new Jaguar(4);
-	rightwheel = new Jaguar(5);
-	drive = new RobotDrive(leftwheel, rightwheel);
+	
+   public void setupdrive() {
+		leftwheel = new Jaguar(3);
+		centerwheel = new Jaguar(4);
+		rightwheel = new Jaguar(5);
+		drive = new RobotDrive(leftwheel, rightwheel);
     }
 
     /**
      * sets shooter on solenoid 2,1 forward
      */
     public void launcherforward() {
-	launcher.set(DoubleSolenoid.Value.kForward);
-	System.out.println("forward");
+		launcher.set(DoubleSolenoid.Value.kForward);
+		System.out.println("forward");
     }
 
     /**
@@ -274,7 +291,37 @@ public class RobotTemplate extends SimpleRobot {
 	launcher.set(DoubleSolenoid.Value.kReverse);
 	System.out.println("reverse");
     }
-
+    
+    /**
+     *sets the launcher angle to up 
+     */
+	public void angleup(){
+		angle.set(DoubleSolenoid.Value.kForward);
+		System.out.println("up");
+	}
+	 /**
+     *sets the launcher angle to down 
+     */
+	public void angledown(){
+		angle.set(DoubleSolenoid.Value.kForward);
+		System.out.println("down");
+	}
+	/**
+	 * runs the scooper
+	 */
+	public void scoop(){
+		scooper.set(0.3);
+		starttime = VM.getTimeMillis();
+		while ((VM.getTimeMillis() - starttime) < 200) {
+			driving();
+		}
+		scooper.set(-0.3);
+		starttime = VM.getTimeMillis();
+		while ((VM.getTimeMillis() - starttime) < 200) {
+			driving();
+		}
+		scooper.set(0);
+	}
     /**
      * Sends launcher forward, turns motors on, and then off, and reverse
      *
