@@ -216,7 +216,7 @@ public class RobotTemplate extends SimpleRobot {
 	//Set launcher to reverse
 	launcherreverse();
 	angledown();
-	
+
 	System.out.println("Ready to launch");
 	while (isOperatorControl() && isEnabled()) {
 	    driving();
