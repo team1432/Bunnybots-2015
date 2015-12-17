@@ -48,52 +48,52 @@ public class RobotTemplate extends SimpleRobot {
     double DriveForwardValue;
     double DriveRotateValue;
     double DriveSideValue;
-    Victor scooper;
+    Victor scooper = new Victor(6);
 	DoubleSolenoid angle = new DoubleSolenoid(3, 4);
     /**
      * this runs every time robot enters autonomous
      */
     public void updateIR() {
-	if (45 > irRight.getValue() && irRight.getValue() > 299) {
-	    right = false;
-	} else {
-	    right = true;
-	}
-	if (45 > irLeft.getValue() && irLeft.getValue() > 299) {
-	    left = false;
-	} else {
-	    left = true;
-	}
-	if (45 > irBack.getValue() && irBack.getValue() > 299) {
-	    back = false;
-	} else {
-	    back = true;
-	}
-	if (45 > irLine.getValue() && irLine.getValue() > 299) {
-	    line = false;
-	} else {
-	    line = true;
-	}
+		if (45 > irRight.getValue() && irRight.getValue() > 299) {
+			right = false;
+		} else {
+			right = true;
+		}
+		if (45 > irLeft.getValue() && irLeft.getValue() > 299) {
+			left = false;
+		} else {
+			left = true;
+		}
+		if (45 > irBack.getValue() && irBack.getValue() > 299) {
+			back = false;
+		} else {
+			back = true;
+		}
+		if (45 > irLine.getValue() && irLine.getValue() > 299) {
+			line = false;
+		} else {
+			line = true;
+		}
     }
 
     public void autonomous() {
-	if (!back) {
-	    state = 0;
+		if (!back) {
+		state = 0;
 	}
 	while (isEnabled() && isAutonomous()) {
-	    updateIR();
-	    if (!back && left && !right && !GotToLine && state != 5) {
-		state = 1;
-	    } else if (back && right && !left && !GotToLine && state != 5) {
-		state = 2;
-	    } else if (back && !right && !left && !GotToLine && state != 5) {
-		state = 2;
-	    } else if (line && !back && state != 5) {
-		state = 3;
-	    } else if ((back && left && right && state != 5) || (back && GotToLine && state != 5)) {
-		state = 4;
-	    }
-	    autodrive();
+		updateIR();
+		if (!back && left && !right && !GotToLine && state != 5) {
+			state = 1;
+		} else if (back && right && !left && !GotToLine && state != 5) {
+			state = 2;
+		} else if (back && !right && !left && !GotToLine && state != 5) {
+			state = 2;
+		} else if (line && !back && state != 5) {
+			state = 3;
+		} else if ((back && left && right && state != 5) || (back && GotToLine && state != 5)) {
+			state = 4;
+		}
+		autodrive();
 	}
     }
 
