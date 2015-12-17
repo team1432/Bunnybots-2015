@@ -27,28 +27,27 @@ import java.util.Random;
  * directory.
  */
 public class RobotTemplate extends SimpleRobot {
-
-    Joystick controller = new Joystick(1);
-    DoubleSolenoid launcher = new DoubleSolenoid(2, 1);
-    Compressor compressor = new Compressor(1, 1);
-    Victor launchwheels = new Victor(1);
-    Jaguar leftwheel, rightwheel, centerwheel;
-    RobotDrive drive;
-    boolean left = false;
-    boolean right = false;
-    boolean back = false;
-    boolean line = false;
-    boolean GotToLine = false;
-    AnalogChannel irLeft = new AnalogChannel(1);
-    AnalogChannel irRight = new AnalogChannel(2);
-    AnalogChannel irLine = new AnalogChannel(3);
-    AnalogChannel irBack = new AnalogChannel(4);
-    long starttime;
-    int state = 0;
-    double DriveForwardValue;
-    double DriveRotateValue;
-    double DriveSideValue;
-    Victor scooper = new Victor(6);
+	Joystick controller = new Joystick(1);
+	DoubleSolenoid launcher = new DoubleSolenoid(2, 1);
+	Compressor compressor = new Compressor(1, 1);
+	Victor launchwheels = new Victor(1);
+	Jaguar leftwheel, rightwheel, centerwheel;
+	RobotDrive drive;
+	boolean left = false;
+	boolean right = false;
+	boolean back = false;
+	boolean line = false;
+	boolean GotToLine = false;
+	AnalogChannel irLeft = new AnalogChannel(1);
+	AnalogChannel irRight = new AnalogChannel(2);
+	AnalogChannel irLine = new AnalogChannel(3);
+	AnalogChannel irBack = new AnalogChannel(4);
+	long starttime;
+	int state = 0;
+	double DriveForwardValue;
+	double DriveRotateValue;
+	double DriveSideValue;
+	Victor scooper = new Victor(5);
 	DoubleSolenoid angle = new DoubleSolenoid(3, 4);
     /**
      * this runs every time robot enters autonomous
